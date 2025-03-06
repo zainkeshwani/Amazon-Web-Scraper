@@ -1,6 +1,14 @@
 from bs4 import BeautifulSoup
+
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.chrome.service import Service
+from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.support.ui import Select
+
 import requests
-import pandas as pd
+import time
+
 
 # Take user input for the item to search
 item = input("Enter the item you want to search for on Amazon: ")
@@ -45,7 +53,7 @@ else:
     if num_res > len(prices):
       num_res = len(prices)
 
-    for name, price in zip(names[:num_res], prices[:num_res]):
+    for name, price, link in zip(names[:num_res], prices[:num_res], links[:num_res]):
       product_name = name.get_text(strip=True)
       # Clean the price string
       product_price_str = price.get_text().strip()
@@ -63,16 +71,63 @@ else:
         if product_price > max_price:
           continue
 
-        product_info.append((product_name, product_price))
+        product_info.append((product_name, product_price, link.get("href").strip()))
 
     # Print the collected product names and prices
     print("\nTop products within your price range:")
-    for idx, (product_name, product_price) in enumerate(product_info, 1):
+    for idx, (product_name, product_price, product_link) in enumerate(product_info, 1):
       print(f"{idx}. {product_name} - Price: ${product_price}")
       print()
-    want_links = input("Do you want to see the links for the items? (y/n): ")
-    if(want_links == "y"):
-      for idx, (product_name, product_price) in enumerate(product_info, 1):
-        print(f"{idx}. {product_name} - Price: ${product_price}")
-        print(f"Link: {links[idx-1]['href']}")
-        print()
+    
+    #print(product_info)
+    selected_product = input("Enter the number of the product you want to add to the cart: ")
+    quantity = int(input("Enter how the quanitity you would like: "))
+    selected_url = product_info[int(selected_product) - 1][2]
+
+    
+    chrome_options = Options()
+    chrome_options.add_argument("--ignore-certificate-errors")
+    chrome_options.add_argument("--ignore-ssl-errors")
+    chrome_options.add_argument("--disable-blink-features=AutomationControlled")  # Helps bypass bot detection
+    chrome_options.add_experimental_option("excludeSwitches", ["enable-automation"])  # Hide automation mode
+    chrome_options.add_experimental_option("useAutomationExtension", False)
+    chrome_options.add_argument("--disable-web-security")
+    chrome_options.add_argument("--allow-running-insecure-content")
+    chrome_options.add_argument("--log-level=3")  # Suppresses unnecessary warnings
+
+
+
+    service = Service("C:\\Users\\zaink\\Downloads\\chromedriver-win64\\chromedriver-win64\\chromedriver.exe")
+    driver = webdriver.Chrome(service=service, options=chrome_options)
+
+    #get proper quantity
+    selected_url = product_info[int(selected_product) - 1][2] + f"&quantity={quantity}"
+
+    driver.get(selected_url)
+
+    # Wait for page to load
+    time.sleep(3)
+
+    # Add item to cart
+    try:
+        quantity_dropdown = Select(driver.find_element(By.ID, "quantity"))
+
+        #driver.execute_script("arguments[0].scrollIntoView();", quantity_dropdown)
+
+        if quantity != 1:
+          quantity_dropdown.select_by_value(str(quantity))
+          driver.find_element(By.TAG_NAME, "body").click() #close drop down so that can click add to cart button
+        
+        # Click the "Add to Cart" button
+        add_to_cart_button = driver.find_element(By.ID, "add-to-cart-button")
+
+        driver.execute_script("arguments[0].scrollIntoView(true);", add_to_cart_button)
+
+        add_to_cart_button.click()
+
+        print("Product(s) added to cart!")
+    except Exception as e:
+        print(f"Failed to add product to cart: {e}")
+
+    input("Click enter to close tab...")
+    driver.quit()
