@@ -129,5 +129,5 @@ else:
     except Exception as e:
         print(f"Failed to add product to cart: {e}")
 
-    input("Click enter to close tab...")
+    input("Click enter to close tab....")
     driver.quit()
