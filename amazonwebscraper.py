@@ -122,6 +122,7 @@ else:
         add_to_cart_button = driver.find_element(By.ID, "add-to-cart-button")
 
         driver.execute_script("arguments[0].scrollIntoView(true);", add_to_cart_button)
+        driver.execute_script("window.scrollBy(0, -400);")  # Scrolls up slightly after scrolling
 
         add_to_cart_button.click()
 
