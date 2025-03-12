@@ -33,7 +33,7 @@ else:
   soup = BeautifulSoup(webpage.content, "html.parser")
 
   # Find all product links (adjust the class name as needed)
-  links = soup.find_all("a", attrs={"class": "a-link-normal"})
+  links = soup.find_all("a", attrs={"class": "a-link-normal s-line-clamp-2 s-link-style a-text-normal"})
 
   names = soup.find_all(
       "h2",
@@ -79,7 +79,7 @@ else:
       print(f"{idx}. {product_name} - Price: ${product_price}")
       print()
     
-    #print(product_info)
+    
     selected_product = input("Enter the number of the product you want to add to the cart: ")
     quantity = int(input("Enter how the quanitity you would like: "))
     selected_url = product_info[int(selected_product) - 1][2]
@@ -102,8 +102,8 @@ else:
 
     #get proper quantity
     selected_url = product_info[int(selected_product) - 1][2] + f"&quantity={quantity}"
-
-    driver.get(selected_url)
+    
+    driver.get("https://www.amazon.com" + selected_url)
 
     # Wait for page to load
     time.sleep(3)
@@ -132,3 +132,7 @@ else:
 
     input("Click enter to close tab...")
     driver.quit()
+
+
+
+#check attrs, this could be why always opens the odio headphone thingy
