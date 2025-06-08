@@ -11,7 +11,7 @@ import time
 
 
 # Take user input for the item to search
-item = input("Enter the item you want to search for on Amazon: ")
+item = input("\n\n\nEnter the item you want to search for on Amazon: ")
 max_price = int(input("Enter the maximum price you are willing to pay: "))
 num_res = int(input("Enter the number of results you want to see: "))
 
@@ -132,7 +132,3 @@ else:
 
     input("Click enter to close tab...")
     driver.quit()
-
-
-
-#check attrs, this could be why always opens the odio headphone thingy
